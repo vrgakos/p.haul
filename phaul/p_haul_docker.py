@@ -17,7 +17,7 @@ import fs_haul_subtree
 
 
 # Some constants for docker
-docker_bin = "/usr/bin/docker-1.9.0-dev"
+docker_bin = "/usr/bin/docker"
 docker_dir = "/var/lib/docker/"
 docker_run_meta_dir = "/var/run/docker/execdriver/native"
 
@@ -112,8 +112,8 @@ class p_haul_type(object):
 		# call docker API
 
 		logf = open("/tmp/docker_checkpoint.log", "w+")
-		image_path_opt = "--image-dir=" + img.image_dir()
-		ret = sp.call([docker_bin, "checkpoint", image_path_opt, self._ctid],
+		cp_dir_opt = "--checkpoint-dir=" + img.image_dir()
+		ret = sp.call([docker_bin, "checkpoint", "create", cp_dir_opt, self._ctid],
 					stdout=logf, stderr=logf)
 		if ret != 0:
 			raise Exception("docker checkpoint failed")
@@ -162,16 +162,17 @@ class p_haul_type(object):
 
 		# Kill any previous docker daemon in order to reload the
 		# status of the migrated container
-		self.kill_last_docker_daemon()
+		#self.kill_last_docker_daemon()
 
 		# start docker daemon in background
-		sp.Popen([docker_bin, "daemon", "-s", "aufs"],
-				stdout=logf, stderr=logf)
+		#sp.Popen([docker_bin, "daemon", "-s", "aufs"],
+		#		stdout=logf, stderr=logf)
 		# daemon.wait() TODO(dguryanov): docker daemon not return
-		time.sleep(2)
+		#time.sleep(2)
 
-		image_path_opt = "--image-dir=" + img.image_dir()
-		ret = sp.call([docker_bin, "restore", image_path_opt, self._ctid],
+		cp_opt = "--checkpoint=asd"
+		cp_dir_opt = "--checkpoint-dir=" + img.image_dir()
+		ret = sp.call([docker_bin, "start", cp_opt, cp_dir_opt, self._ctid],
 					stdout=logf, stderr=logf)
 		if ret != 0:
 			raise Exception("docker restore failed")
